@@ -10,11 +10,11 @@ from starlette.responses import RedirectResponse
 
 load_dotenv()
 
-from models.user import User
-from models.token import TokenRecord
-from database.database import engine
-from database.database import Base
-import utils.tmdb as tmdb_utils
+from backend.models.user import User
+from backend.models.token import TokenRecord
+from backend.database.database import engine
+from backend.database.database import Base
+import backend.utils.tmdb as tmdb_utils
 
 from routes import auth_router, movie_router, search_router, tv_router
 from schemas.media import HealthResponse

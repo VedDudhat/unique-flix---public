@@ -10,14 +10,14 @@ from starlette.responses import RedirectResponse
 
 load_dotenv()
 
-from backend.models.user import User
-from backend.models.token import TokenRecord
-from backend.database.database import engine
-from backend.database.database import Base
-import backend.utils.tmdb as tmdb_utils
+from models.user import User
+from models.token import TokenRecord
+from database.database import engine
+from database.database import Base
+import utils.tmdb as tmdb_utils
 
-from backend.routes import auth_router, movie_router, search_router, tv_router
-from backend.schemas.media import HealthResponse
+from routes import auth_router, movie_router, search_router, tv_router
+from schemas.media import HealthResponse
 
 
 # database init & bind
@@ -58,7 +58,7 @@ app.include_router(search_router)
 # root end point
 @app.get("/")
 def root():
-    return RedirectResponse(url="/api/auth/register")
+    return RedirectResponse(url="/register")
 
 
 # health check

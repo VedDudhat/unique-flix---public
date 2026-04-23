@@ -32,7 +32,7 @@ export default function App() {
         <Routes>
           {/* ── Public routes (no JWT needed) ──────────────────────────── */}
           <Route path="/login"    element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/" element={<Navigate to="/register" replace />} />
 
           {/* ── Protected routes (JWT required) ────────────────────────── */}
           <Route
@@ -42,7 +42,7 @@ export default function App() {
                 <>
                   <Navbar />
                   <Routes>
-                    <Route path="/"                  element={<Home />} />
+                    <Route path="/home"                  element={<Home />} />
                     <Route path="/movies"            element={<Movies />} />
                     <Route path="/tv"                element={<TVShows />} />
                     <Route path="/search"            element={<Search />} />

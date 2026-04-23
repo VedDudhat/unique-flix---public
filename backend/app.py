@@ -28,10 +28,11 @@ async def lifespan(app: FastAPI):
     yield
     await client.aclose()
 
+
 # app
 app = FastAPI(title="UniqueFlix API", description=(
-                  "Movie & TV show streaming website"
-             ),
+    "Movie & TV show streaming website"
+),
               version="2.0.0",
               lifespan=lifespan,
               )
@@ -53,16 +54,17 @@ app.include_router(tv_router)
 app.include_router(search_router)
 
 
+# root end point
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "UniqueFlix API running"}
+
+
 # health check
 @app.get("/api/health", response_model=HealthResponse, tags=["Health"])
 async def health():
     tmdb_key = os.getenv("TMDB_API_KEY", "")
     return {"status": "ok", "tmdb_key_set": bool(tmdb_key)}
-
-
-@app.on_event("startup")
-def startup():
-    Base.metadata.create_all(bind=engine)
 
 
 # main

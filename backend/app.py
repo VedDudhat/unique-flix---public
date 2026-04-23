@@ -28,10 +28,11 @@ async def lifespan(app: FastAPI):
     yield
     await client.aclose()
 
+
 # app
 app = FastAPI(title="UniqueFlix API", description=(
-                  "Movie & TV show streaming website"
-             ),
+    "Movie & TV show streaming website"
+),
               version="2.0.0",
               lifespan=lifespan,
               )
@@ -51,6 +52,12 @@ app.include_router(auth_router)
 app.include_router(movie_router)
 app.include_router(tv_router)
 app.include_router(search_router)
+
+
+# root end point
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "UniqueFlix API running"}
 
 
 # health check

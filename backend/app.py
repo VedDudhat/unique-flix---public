@@ -6,6 +6,7 @@ import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.responses import RedirectResponse
 
 load_dotenv()
 
@@ -57,7 +58,7 @@ app.include_router(search_router)
 # root end point
 @app.get("/")
 def root():
-    return {"status": "ok", "message": "UniqueFlix API running"}
+    return RedirectResponse(url="/api/auth/register")
 
 
 # health check

@@ -16,7 +16,7 @@ from backend.database.database import engine
 from backend.database.database import Base
 import backend.utils.tmdb as tmdb_utils
 
-from routes import auth_router, movie_router, search_router, tv_router
+from backend.routes import auth_router, movie_router, search_router, tv_router
 from schemas.media import HealthResponse
 
 

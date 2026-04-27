@@ -56,7 +56,7 @@ app.include_router(search_router)
 # root end point
 @app.get("/")
 def root():
-    return RedirectResponse(url="/api/auth/register")
+    return RedirectResponse(url="/docs")
 
 
 # health check

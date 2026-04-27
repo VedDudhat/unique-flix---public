@@ -13,6 +13,7 @@ build/
 .eggs/
 
 # Node / React
+.idea/
 node_modules/
 frontend/build/
 frontend/.env.local

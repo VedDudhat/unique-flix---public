@@ -9,8 +9,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
-from backend.models.user import User
-from backend.models.token import TokenRecord
 from backend.database.database import engine
 from backend.database.database import Base
 import backend.utils.tmdb as tmdb_utils

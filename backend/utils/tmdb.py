@@ -10,8 +10,8 @@ TMDB_KEY = os.getenv("TMDB_API_KEY", "dd41c27d8ac583024d56ca6c34d506f6")
 TMDB_IMG = "https://image.tmdb.org/t/p/w780"
 TMDB_IMG_ORIGINAL = "https://image.tmdb.org/t/p/original"
 
-VIDSRC_MOVIE = "https://vidsrc.to/embed/movie/{tmdb_id}"
-VIDSRC_TV = "https://vidsrc.to/embed/tv/{tmdb_id}/{season}/{episode}"
+VIDSRC_MOVIE = "https://vidsrc-embed.ru/embed/movie/{tmdb_id}"
+VIDSRC_TV = "https://vidsrc-embed.ru/embed/tv/{tmdb_id}/{season}/{episode}"
 
 # The shared client is injected at startup by app.py
 _client: httpx.AsyncClient = None

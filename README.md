@@ -5,7 +5,7 @@ Built with **Python (Flask)** backend + **React** frontend, deployed on **Render
 
 > demo link: https://uniqueflix.vercel.app/
 
-> **Streaming engine:** [VidSrc.to](https://vidsrc.to) — free, no API key required.  
+> **Streaming engine:** [cinezo.live]((https://cinezo.live/)) — free, no API key required.  
 > **Metadata:** [TMDB (The Movie Database)](https://www.themoviedb.org/) — free API key required.
 
 ---
@@ -65,7 +65,7 @@ cinestream/
 │   │   │   ├── TVShows.js     ← TV listing (tabs + pagination)
 │   │   │   ├── MovieDetail.js ← Movie detail + cast + similar
 │   │   │   ├── TVDetail.js    ← TV detail + season/episode picker
-│   │   │   ├── Player.js      ← Streaming player page (VidSrc embed)
+│   │   │   ├── Player.js      ← Streaming player page (cinezo embed)
 │   │   │   └── Search.js      ← Search results page
 │   │   └── utils/
 │   │       └── api.js         ← All axios API call functions
@@ -107,7 +107,7 @@ User Browser
        ┌───────┴────────┐
        ▼                ▼
 ┌────────────┐   ┌─────────────────────┐
-│ TMDB API   │   │ VidSrc.to           │
+│ TMDB API   │   │ cinezo.live           │
 │ (metadata) │   │ (streaming player)  │
 │ posters    │   │ free iframe embeds  │
 │ cast, etc. │   │ no API key needed   │
@@ -121,7 +121,7 @@ User Browser
 3. TMDB returns JSON with movie metadata (titles, posters, ratings, IDs)
 4. React renders the grid of movie cards
 5. User clicks **Watch Now** → React calls `/api/movies/{id}/stream`
-6. Flask returns a VidSrc embed URL: `https://vidsrc.to/embed/movie/{tmdb_id}`
+6. Flask returns a cinezo embed URL: `https://cinezo.live/embed/movie/{tmdb_id}`
 7. React loads that URL inside an `<iframe>` — the movie plays directly in the browser
 
 ---
@@ -140,7 +140,7 @@ User Browser
 | HTTP in React | axios | Clean API calls with interceptors |
 | Styling | Custom CSS | Dark Netflix-inspired theme, no CSS framework needed |
 | Metadata API | TMDB | Industry-standard movie/TV database, free tier |
-| Streaming | VidSrc.to | Free iframe-based streaming, no API key |
+| Streaming | cinezo.live | Free iframe-based streaming, no API key |
 | Hosting | Render.com | Free tier supports both static + web services |
 
 ---
@@ -164,7 +164,7 @@ All endpoints are served from the Flask backend.
 | GET | `/api/movies/now-playing?page=1` | Movies in cinemas now |
 | GET | `/api/movies/top-rated?page=1` | Highest rated movies |
 | GET | `/api/movies/{id}` | Full detail: genres, cast, similar |
-| GET | `/api/movies/{id}/stream` | Returns VidSrc embed URL |
+| GET | `/api/movies/{id}/stream` | Returns cinezo embed URL |
 | GET | `/api/movies/search?q=batman&page=1` | Search movies by name |
 
 ### TV Shows
@@ -176,7 +176,7 @@ All endpoints are served from the Flask backend.
 | GET | `/api/tv/on-air?page=1` | Currently airing shows |
 | GET | `/api/tv/{id}` | Full detail: genres, cast, seasons |
 | GET | `/api/tv/{id}/season/{n}` | Episodes for a specific season |
-| GET | `/api/tv/{id}/stream?season=1&episode=1` | Returns VidSrc embed URL |
+| GET | `/api/tv/{id}/stream?season=1&episode=1` | Returns cinezo embed URL |
 | GET | `/api/tv/search?q=breaking+bad` | Search shows by name |
 
 ### Combined Search
@@ -189,7 +189,7 @@ All endpoints are served from the Flask backend.
 
 ```json
 {
-  "embed_url": "https://vidsrc.to/embed/movie/27205",
+  "embed_url": "https://cinezo.live/embed/movie/27205",
   "tmdb_id": 27205
 }
 ```
@@ -204,24 +204,24 @@ The frontend puts this `embed_url` directly into an `<iframe src="...">`.
 
 The original Android app used TMDB's `/videos` endpoint which returns YouTube trailer keys (e.g. `dQw4w9WgXcQ`), then played them via the YouTube API. This only plays **trailers** — not the actual film.
 
-### VidSrc.to — the replacement
+### cinezo.live — the replacement
 
-VidSrc is a free streaming aggregator that indexes content from various third-party hosters. It provides a clean iframe embed URL format:
+cinezo is a free streaming aggregator that indexes content from various third-party hosters. It provides a clean iframe embed URL format:
 
 ```
-Movies:   https://vidsrc.to/embed/movie/{tmdb_id}
-TV Shows: https://vidsrc.to/embed/tv/{tmdb_id}/{season}/{episode}
+Movies:   https://cinezo.live/embed/movie/{tmdb_id}
+TV Shows: https://cinezo.live/embed/tv/{tmdb_id}/{season}/{episode}
 ```
 
 How the backend generates these (from `app.py`):
 
 ```python
-VIDSRC_MOVIE = "https://vidsrc.to/embed/movie/{tmdb_id}"
-VIDSRC_TV    = "https://vidsrc.to/embed/tv/{tmdb_id}/{season}/{episode}"
+CINEZO_MOVIE = "https://cinezo.live/embed/movie/{tmdb_id}"
+CINEZO_TV    = "https://cinezo.live/embed/tv/{tmdb_id}/{season}/{episode}"
 
 @app.route("/api/movies/<int:movie_id>/stream")
 def movie_stream(movie_id):
-    url = VIDSRC_MOVIE.format(tmdb_id=movie_id)
+    url = CINEZO_MOVIE.format(tmdb_id=movie_id)
     return jsonify({"embed_url": url})
 ```
 
@@ -236,12 +236,12 @@ How the frontend embeds it (from `Player.js`):
 />
 ```
 
-### Important notes about VidSrc
+### Important notes about cinezo
 
 - **Not every title is available** — popular titles (Marvel, popular Netflix shows) are almost always available. Obscure films may not be.
 - **Availability is regional** — some titles may be blocked in certain countries
-- **No API key or account needed** — the URL works as long as VidSrc has the content indexed
-- **Alternative embed services** (if VidSrc is down): You can swap the `VIDSRC_MOVIE` and `VIDSRC_TV` URLs in `app.py` to any other embed service like `https://2embed.cc/embed/{tmdb_id}` or `https://vidsrc.me/embed/movie/{tmdb_id}`
+- **No API key or account needed** — the URL works as long as cinezo has the content indexed
+- **Alternative embed services** (if cinezo is down): You can swap the `CINEZO_MOVIE` and `CINEZO_TV` URLs in `app.py` to any other embed service like `https://2embed.cc/embed/{tmdb_id}` or `https://cinezo.me/embed/movie/{tmdb_id}`
 
 ---
 
@@ -266,7 +266,7 @@ How the frontend embeds it (from `Player.js`):
 **Fix:** Open browser DevTools (F12) → Console tab. If you see `REACT_APP_API_URL is undefined`, you forgot to set the environment variable in Render before building. Go to Render → Static Site → Environment → add `REACT_APP_API_URL` → **Manual Deploy** → **Deploy Latest Commit**.
 
 **Problem:** Movies load but "Watch Now" shows an empty iframe  
-**Fix:** VidSrc may not have this title indexed yet. Try another popular movie (e.g. Avengers, Inception). If many titles fail, check that the `embed_url` returned by `/api/movies/{id}/stream` is a valid VidSrc URL.
+**Fix:** cinezo may not have this title indexed yet. Try another popular movie (e.g. Avengers, Inception). If many titles fail, check that the `embed_url` returned by `/api/movies/{id}/stream` is a valid cinezo URL.
 
 **Problem:** Page refreshes give 404  
 **Fix:** Make sure the Render Static Site has a Rewrite rule: `/* → /index.html`. This is essential for React Router.
@@ -295,7 +295,7 @@ How the frontend embeds it (from `Player.js`):
 | TV Show listing (Popular / On Air) | ✅ | Same tab UI |
 | Movie detail page | ✅ | Poster, cast, genres, similar |
 | TV detail page | ✅ | Seasons, episode list, cast |
-| Movie streaming | ✅ | VidSrc iframe embed |
+| Movie streaming | ✅ | cinezo iframe embed |
 | TV episode streaming | ✅ | Season + episode selector |
 | Global search | ✅ | Searches both movies and TV |
 | Responsive design | ✅ | Works on mobile and desktop |
@@ -308,7 +308,7 @@ How the frontend embeds it (from `Player.js`):
 ## Credits
 
 - **TMDB** — Movie and TV metadata ([themoviedb.org](https://www.themoviedb.org))
-- **VidSrc** — Streaming embeds ([vidsrc.to](https://vidsrc.to))
+- **cinezo** — Streaming embeds ([cinezo.live](https://cinezo.live))
 
 ---
 

@@ -464,7 +464,10 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
   text-align: center; color: var(--text-secondary);
   font-size: 0.9rem; margin-bottom: 28px;
 }
-
+.auth-smalltitle{
+  text-align: center; color: var(--text-secondary);
+  font-size: 0.9rem; margin-bottom: 15px;
+}
 /* Error banner */
 .auth-error {
   background: rgba(229,9,20,0.12);
@@ -570,6 +573,7 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
 .auth-switch {
   text-align: center;
   margin-top: 24px;
+  margin-bottom: 24px;
   font-size: 0.875rem;
   color: var(--text-secondary);
 }

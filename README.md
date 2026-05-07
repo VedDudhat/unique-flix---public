@@ -5,7 +5,7 @@ Built with **Python (Flask)** backend + **React** frontend, deployed on **Render
 
 > demo link: https://uniqueflix.vercel.app/
 
-> **Streaming engine:** [cinezo.live]((https://cinezo.live/)) — free, no API key required.  
+> **Streaming engine:** [cinezo.live](https://cinezo.live/) — free, no API key required.  
 > **Metadata:** [TMDB (The Movie Database)](https://www.themoviedb.org/) — free API key required.
 
 ---

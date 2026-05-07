@@ -118,6 +118,8 @@ export default function Login() {
           Don't have an account?{" "}
           <Link to="/register" className="auth-link">Create one</Link>
         </p>
+        <p className="auth-subtitle">email: admin@gmail.com , Pass: Admin@123</p>
+        <p className="auth-subtitle">instruction: password is case sensitive</p>
       </div>
     </div>
   );

@@ -51,7 +51,7 @@ class MediaListResponse(BaseModel):
 # stream response
 class StreamResponse(BaseModel):
     embed_url: str
-    tmdb_id: int
+    tmdbId: int
     season: Optional[int] = None
     episode: Optional[int] = None
 

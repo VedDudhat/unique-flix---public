@@ -21,7 +21,8 @@ from backend.schemas.media import HealthResponse
 # database init & bind
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    Base.metadata.create_all(bind=engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     client = httpx.AsyncClient(timeout=10)
     tmdb_utils.set_client(client)
     yield
@@ -53,15 +54,10 @@ app.include_router(tv_router)
 app.include_router(search_router)
 
 
-# @app.get("/")
-# async def root():
-#     return {"status": "ok"}
-#
-
 # root end point
 @app.get("/")
-def homepage():
-    return RedirectResponse("/docs")
+def root():
+    return RedirectResponse(url="/docs")
 
 
 # health check

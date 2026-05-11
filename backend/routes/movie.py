@@ -2,7 +2,7 @@ from fastapi import APIRouter, Query, Depends
 from backend.schemas.media import MediaListResponse, StreamResponse
 from backend.auth import get_current_user
 from backend.models.user import User
-from backend.utils.tmdb import CINEZO_MOVIE
+from backend.utils.tmdb import VIDLINK_MOVIE
 
 router = APIRouter(prefix="/api/movies", tags=["Movies"])
 
@@ -89,7 +89,7 @@ async def movie_stream(
 ):
     """Returns the VidSrc iframe embed URL — no extra API key needed."""
 
-    return {"embed_url": CINEZO_MOVIE.format(tmdbId=movie_id), "tmdbId": movie_id}
+    return {"embed_url": VIDLINK_MOVIE.format(tmdbId=movie_id), "tmdbId": movie_id}
 
 
 # movies details

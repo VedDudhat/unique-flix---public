@@ -10,9 +10,9 @@ TMDB_KEY = os.getenv("TMDB_API_KEY", "dd41c27d8ac583024d56ca6c34d506f6")
 TMDB_IMG = "https://image.tmdb.org/t/p/w780"
 TMDB_IMG_ORIGINAL = "https://image.tmdb.org/t/p/original"
 
-CINEZO_MOVIE = "https://player.cinezo.live/embed/movie/{tmdbId}"
-CINEZO_TV = "https://player.cinezo.live/embed/tv/{tmdbId}/{season}/{episode}"
-CINEZO_ANIME = "https://player.cinezo.live/embed/anime/{AnilistId}/{number}?dub=true"
+VIDLINK_MOVIE = "https://vidlink.pro/movie/{tmdbId}"
+VIDLINK_TV = "https://vidlink.pro/tv/{tmdbId}/{season}/{episode}"
+VIDLINK_ANIME = "https://vidlink.pro/anime/{MALid}/{number}/{subOrDub}"
 
 # The shared client is injected at startup by app.py
 _client: httpx.AsyncClient = None

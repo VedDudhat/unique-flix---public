@@ -2,7 +2,7 @@ from fastapi import APIRouter, Query, Depends
 from backend.schemas.media import MediaListResponse, StreamResponse, SeasonResponse
 from backend.auth import get_current_user
 from backend.models.user import User
-from backend.utils.tmdb import tmdb_get, format_tv, TMDB_IMG, CINEZO_TV
+from backend.utils.tmdb import tmdb_get, format_tv, TMDB_IMG, VIDLINK_TV
 
 router = APIRouter(prefix="/api/tv-shows", tags=["TV-SHOWS"])
 
@@ -93,7 +93,7 @@ async def tv_stream(
         _: User = Depends(get_current_user),
 ):
     """Returns the VidSrc iframe embed URL for a specific season + episode."""
-    url = CINEZO_TV.format(tmdbId=tv_id, season=season, episode=episode)
+    url = VIDLINK_TV.format(tmdbId=tv_id, season=season, episode=episode)
     return {"embed_url": url, "tmdbId": tv_id, "season": season, "episode": episode}
 
 

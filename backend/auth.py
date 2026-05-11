@@ -4,42 +4,75 @@ import uuid
 import os
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import (
+    HTTPBearer,
+    HTTPAuthorizationCredentials,
+)
+
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from sqlalchemy.orm import Session
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.database.database import get_db
 from backend.models.user import User
 from backend.models.token import TokenRecord
 from backend.schemas.token import TokenPayload
 
+
 # Config
-SECRET_KEY = os.getenv("SECRET_KEY", "claus-the-king-of-kings")
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "claus-the-king-of-kings",
+)
+
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
+
+ACCESS_TOKEN_EXPIRE_MINUTES = int(
+    os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60")
+)
+
 
 # Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(
+    schemes=["argon2"],
+    deprecated="auto",
+)
 
 
 def hash_password(password: str):
     if len(password.encode("utf-8")) > 72:
-        raise ValueError("Password too long. Maximum 72 bytes.")
+        raise ValueError(
+            "Password too long. Maximum 72 bytes."
+        )
+
     return pwd_context.hash(password)
 
 
-def verify_password(plain: str, hashed: str) -> bool:
+def verify_password(
+    plain: str,
+    hashed: str,
+) -> bool:
     return pwd_context.verify(plain, hashed)
 
 
-# jwt create
-def create_access_token(user_id: int, db: Session) -> tuple[str, str, datetime]:
-    """ Creates a signed JWT and persists a TokenRecord in the database.
-    Returns (token_string, jti, expires_at)
+# Create JWT
+async def create_access_token(
+    user_id: int,
+    db: AsyncSession,
+) -> tuple[str, str, datetime]:
+
     """
-    jti = str(uuid.uuid4())  # unique ID for this specific token
-    expires_at = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    Creates JWT + stores token record.
+    """
+
+    jti = str(uuid.uuid4())
+
+    expires_at = (
+        datetime.now(timezone.utc)
+        + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
 
     payload = {
         "sub": str(user_id),
@@ -48,9 +81,13 @@ def create_access_token(user_id: int, db: Session) -> tuple[str, str, datetime]:
         "iat": datetime.now(timezone.utc),
     }
 
-    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    token = jwt.encode(
+        payload,
+        SECRET_KEY,
+        algorithm=ALGORITHM,
+    )
 
-    # Persist to DB so we can revoke it on logout
+    # Save token record
     record = TokenRecord(
         jti=jti,
         user_id=user_id,
@@ -58,58 +95,92 @@ def create_access_token(user_id: int, db: Session) -> tuple[str, str, datetime]:
         is_revoked=False,
         expires_at=expires_at,
     )
+
     db.add(record)
-    db.commit()
+
+    await db.commit()
+    await db.refresh(record)
 
     return token, jti, expires_at
 
 
-# jwt decoding
-def decode_token(token: str) -> Optional[TokenPayload]:
-    """
-    Decodes and verifies the JWT signature + expiry.
-    Returns a TokenPayload or None if invalid.
-    """
+# Decode JWT
+def decode_token(
+    token: str,
+) -> Optional[TokenPayload]:
+
     try:
-        raw = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return TokenPayload(sub=raw.get("sub"), jti=raw.get("jti"))
+        raw = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
+        )
+
+        return TokenPayload(
+            sub=raw.get("sub"),
+            jti=raw.get("jti"),
+        )
+
     except JWTError:
         return None
 
 
-# HTTPBearer extractor
+# Bearer auth
 bearer_scheme = HTTPBearer()
 
 
-# get_current_user dependency
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
-                    db: Session = Depends(get_db),
+# Current user dependency
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(
+        bearer_scheme
+    ),
+    db: AsyncSession = Depends(get_db),
 ) -> User:
 
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials. Please log in again.",
+        detail="Could not validate credentials.",
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    # token decode
+    # Decode token
     payload = decode_token(credentials.credentials)
-    if payload is None or payload.sub is None or payload.jti is None:
+
+    if (
+        payload is None
+        or payload.sub is None
+        or payload.jti is None
+    ):
         raise credentials_exception
 
-    # Step 3 — check DB record exists and is not revoked
-    record = db.query(TokenRecord).filter(TokenRecord.jti == payload.jti).first()
+    # Check token record
+    result = await db.execute(
+        select(TokenRecord).where(
+            TokenRecord.jti == payload.jti
+        )
+    )
+
+    record = result.scalar_one_or_none()
+
     if record is None or record.is_revoked:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has been revoked. Please log in again.",
+            detail="Token has been revoked.",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Step 4 — load the user
-    user = db.query(User).filter(User.id == int(payload.sub)).first()
+    # Load user
+    result = await db.execute(
+        select(User).where(
+            User.id == int(payload.sub)
+        )
+    )
+
+    user = result.scalar_one_or_none()
+
     if user is None:
         raise credentials_exception
+
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

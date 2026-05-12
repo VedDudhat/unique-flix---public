@@ -7,7 +7,11 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://neondb_owner:npg_
 engine = create_async_engine(
     DATABASE_URL,
     # connect_args is required for SQLite so multiple threads can share one connection
-    echo=True,
+    echo=False,
+    pool_size=5,
+    max_overflow=10,
+    pool_timeout=30,
+    pool_pre_ping=True,
 )
 
 AsyncSessionLocal = sessionmaker(
@@ -18,13 +22,13 @@ AsyncSessionLocal = sessionmaker(
 Base = declarative_base()
 
 
-def get_db():
+async def get_db():
     """
     FastAPI dependency — yields a DB session and always closes it after the
     request, even if an exception is raised.
     """
-    db = AsyncSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()

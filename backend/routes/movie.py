@@ -41,7 +41,7 @@ async def movies_popular(
     }
 
 
-# top rated movies
+# top-rated movies
 @router.get("/top-rated", response_model=MediaListResponse, summary="Highest rated movies",
             )
 async def movies_top_rated(

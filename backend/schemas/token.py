@@ -7,7 +7,7 @@ class TokenResponse(BaseModel):
 
     access_token: str
     token_type:   str = "bearer"
-    expires_in:   int  # expire in 3600 sec
+    expires_in:   float
     user_id:      int
     username:     str
 

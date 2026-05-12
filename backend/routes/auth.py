@@ -22,11 +22,7 @@ router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED,
              summary="Create a new account",
              )
-async def register(
-
-    body: UserRegister,
-    db: AsyncSession = Depends(get_db),
-):
+async def register(body: UserRegister, db: AsyncSession = Depends(get_db)):
     """Creates a new user account."""
 
     result = await db.execute(
@@ -70,10 +66,7 @@ async def register(
 # Login
 @router.post("/login", response_model=TokenResponse, summary="Log in and receive a JWT",
              )
-async def login(
-    body: UserLogin,
-    db: AsyncSession = Depends(get_db),
-):
+async def login(body: UserLogin, db: AsyncSession = Depends(get_db)):
     """
     Authenticates the user with email + password.
     """
@@ -90,8 +83,8 @@ async def login(
     )
 
     if not user or not verify_password(
-        body.password,
-        user.password_hash,
+            body.password,
+            user.password_hash,
     ):
         raise invalid
 
@@ -111,13 +104,11 @@ async def login(
         "username": user.username,
     }
 
-# ─── Logout ───────────────────────────────────────────────────────────────────
+
+# Logout
 @router.post("/logout", response_model=LogoutResponse, summary="Revoke current JWT (log out)",
              )
-async def logout(
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
+async def logout(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     """Marks the current token as revoked."""
 
     result = await db.execute(
@@ -144,7 +135,6 @@ async def logout(
 @router.get("/me", response_model=UserProfile, summary="Get the currently logged-in user's profile",
             )
 async def me(current_user: User = Depends(get_current_user)):
-    """
-    Returns the profile of the user identified by the Bearer token."""
+    """ Returns the profile of the user identified by the Bearer token."""
 
     return current_user

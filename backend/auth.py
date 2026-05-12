@@ -4,10 +4,7 @@ import uuid
 import os
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import (
-    HTTPBearer,
-    HTTPAuthorizationCredentials,
-)
+from fastapi.security import (HTTPBearer,HTTPAuthorizationCredentials,)
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -22,17 +19,9 @@ from backend.schemas.token import TokenPayload
 
 
 # Config
-SECRET_KEY = os.getenv(
-    "SECRET_KEY",
-    "claus-the-king-of-kings",
-)
-
+SECRET_KEY = os.getenv("SECRET_KEY","claus-the-king-of-kings",)
 ALGORITHM = "HS256"
-
-ACCESS_TOKEN_EXPIRE_MINUTES = int(
-    os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60")
-)
-
+ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60")
 
 # Password hashing
 pwd_context = CryptContext(
@@ -50,22 +39,13 @@ def hash_password(password: str):
     return pwd_context.hash(password)
 
 
-def verify_password(
-    plain: str,
-    hashed: str,
-) -> bool:
+def verify_password(plain: str, hashed: str) -> bool:
     return pwd_context.verify(plain, hashed)
 
 
 # Create JWT
-async def create_access_token(
-    user_id: int,
-    db: AsyncSession,
-) -> tuple[str, str, datetime]:
-
-    """
-    Creates JWT + stores token record.
-    """
+async def create_access_token(user_id: int, db: AsyncSession) -> tuple[str, str, datetime]:
+    """ Creates JWT + stores token record. """
 
     jti = str(uuid.uuid4())
 
@@ -105,9 +85,7 @@ async def create_access_token(
 
 
 # Decode JWT
-def decode_token(
-    token: str,
-) -> Optional[TokenPayload]:
+def decode_token(token: str) -> Optional[TokenPayload]:
 
     try:
         raw = jwt.decode(
@@ -130,12 +108,8 @@ bearer_scheme = HTTPBearer()
 
 
 # Current user dependency
-async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(
-        bearer_scheme
-    ),
-    db: AsyncSession = Depends(get_db),
-) -> User:
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(
+                           bearer_scheme), db: AsyncSession = Depends(get_db)) -> User:
 
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

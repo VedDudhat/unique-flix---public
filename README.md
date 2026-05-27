@@ -1,7 +1,7 @@
 # 🎬 UniqueFlix
 
 A full-stack movie & TV show streaming web application converted from an Android app.  
-Built with **Python (Flask)** backend + **React** frontend, deployed on **Render**.
+Built with **Python (Flask)** backend + **React** frontend, deployed on **Vercel**.
 
 > **Streaming engine:** [VidSrc.to](https://vidsrc.to) — free, no API key required.  
 > **Metadata:** [TMDB (The Movie Database)](https://www.themoviedb.org/) — free API key required.
@@ -310,4 +310,4 @@ How the frontend embeds it (from `Player.js`):
 
 ---
 
-*Built with ❤️ — Python + React + Render*
+*Built with ❤️ — Python + React + Vercel*

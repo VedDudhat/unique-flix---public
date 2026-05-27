@@ -95,4 +95,14 @@ export const searchTV = (q, page = 1) =>
 export const searchAll = (q, page = 1) =>
   api.get(`/api/search?q=${encodeURIComponent(q)}&page=${page}`).then((r) => r.data);
 
+export const getMoviesByGenre = (genreId, sort = "popularity.desc", page = 1) =>
+  api
+    .get(`/api/movies/genre?genre_id=${genreId}&sort_by=${sort}&page=${page}`)
+    .then((r) => r.data);
+
+export const getTVByGenre = (genreId, sort = "popularity.desc", page = 1) =>
+  api
+    .get(`/api/tv-shows/genre?genre_id=${genreId}&sort_by=${sort}&page=${page}`)
+    .then((r) => r.data);
+
 export default api;

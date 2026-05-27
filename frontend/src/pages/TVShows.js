@@ -55,7 +55,7 @@ export default function TVShows() {
   useEffect(() => {
     setPage(1);
     load(1, false);
-  }, [query, sort]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [query, sort]);
 
   const handleSearch = (e) => {
     e.preventDefault();

@@ -23,22 +23,7 @@ from backend.schemas.media import HealthResponse
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    limits = httpx.Limits(
-        max_keepalive_connections=20,
-        max_connections=100,
-    )
-    timeout = httpx.Timeout(
-        connect=20.0,
-        read=30.0,
-        write=30.0,
-        pool=30.0,
-    )
-    client = httpx.AsyncClient(
-        timeout=timeout,
-        limits=limits,
-        follow_redirects=True,
-        http2=False,
-    )
+    client = httpx.AsyncClient(timeout=10)
     tmdb_utils.set_client(client)
     yield
     await client.aclose()

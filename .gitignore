@@ -15,6 +15,7 @@ build/
 # Node / React
 .idea/
 node_modules/
+frontend/node_modules/
 frontend/build/
 frontend/.env.local
 frontend/.env.production.local

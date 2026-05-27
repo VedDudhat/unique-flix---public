@@ -96,6 +96,38 @@ async def tv_stream(
     url = VIDLINK_TV.format(tmdbId=tv_id, season=season, episode=episode)
     return {"embed_url": url, "tmdbId": tv_id, "season": season, "episode": episode}
 
+@router.get("/genre", summary=f"Movies by genre")
+
+async def movies_by_genre(
+        genre_id: int,
+        sort_by: str = "popularity.desc",
+        page: int = Query(1, ge=1, le=500),
+        _: User = Depends(get_current_user)
+):
+    allowed_sorts = {
+        "popularity.desc", "popularity.asc",
+        "release_date.desc", "release_date.asc",
+        "vote_average.desc", "vote_average.asc",
+        "revenue.desc", "vote_count.desc",
+    }
+    if sort_by not in allowed_sorts:
+        sort_by = "popularity.desc"
+
+    data = await tmdb_get(
+        "/discover/tv",
+        {
+            "with_genres": genre_id,
+            "sort_by": sort_by,
+            "page": page,
+            "vote_count.gte": 50,
+            "include_adult": False,
+        },
+    )
+    return {
+        "results": [format_tv(m) for m in data.get("results", [])],
+        "page": data.get("page", 1),
+        "total_pages": min(data.get("total_pages", 1), 500),
+    }
 
 # TV show detail
 @router.get("/{tv_id}", summary="Full TV show detail — seasons, cast, similar shows",
@@ -132,3 +164,4 @@ async def tv_detail(
     ]
     result["similar"] = [format_tv(t) for t in data.get("similar", {}).get("results", [])[:8]]
     return result
+

@@ -1,7 +1,7 @@
 # 🎬 UniqueFlix
 
 A full-stack movie & TV show streaming web application converted from an Android app.  
-Built with **Python (Flask)** backend + **React** frontend, deployed on **Render**.
+Built with **Python (Flask)** backend + **React** frontend, deployed on **Vercel**.
 
 > demo link: https://uniqueflix.vercel.app/
 
@@ -312,4 +312,4 @@ How the frontend embeds it (from `Player.js`):
 
 ---
 
-*Built with ❤️ — Python + React + Render*
+*Built with ❤️ — Python + React + Vercel*

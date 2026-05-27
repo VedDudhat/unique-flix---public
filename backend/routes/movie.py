@@ -91,6 +91,38 @@ async def movie_stream(
 
     return {"embed_url": VIDLINK_MOVIE.format(tmdbId=movie_id), "tmdbId": movie_id}
 
+@router.get("/genre", summary=f"Movies by genre")
+
+async def movies_by_genre(
+        genre_id: int,
+        sort_by: str = "popularity.desc",
+        page: int = Query(1, ge=1, le=500),
+        _: User = Depends(get_current_user)
+):
+    allowed_sorts = {
+        "popularity.desc", "popularity.asc",
+        "release_date.desc", "release_date.asc",
+        "vote_average.desc", "vote_average.asc",
+        "revenue.desc", "vote_count.desc",
+    }
+    if sort_by not in allowed_sorts:
+        sort_by = "popularity.desc"
+
+    data = await tmdb_get(
+        "/discover/movie",
+        {
+            "with_genres": genre_id,
+            "sort_by": sort_by,
+            "page": page,
+            "vote_count.gte": 50,
+            "include_adult": False,
+        },
+    )
+    return {
+        "results": [format_movie(m) for m in data.get("results", [])],
+        "page": data.get("page", 1),
+        "total_pages": min(data.get("total_pages", 1), 500),
+    }
 
 # movies details
 @router.get("/{movie_id}",summary="Full movie detail — cast, genres, similar titles",

@@ -1,3 +1,4 @@
+import asyncio
 import os
 from fastapi import HTTPException
 import httpx
@@ -24,17 +25,59 @@ def set_client(client: httpx.AsyncClient):
     _client = client
 
 
-async def tmdb_get(path: str, extra_params: dict = None) -> dict:
-    params = {"api_key": TMDB_KEY, "language": "en-US"}
+import httpx
+from fastapi import HTTPException
+
+async def tmdb_get(path:str, extra_params:dict=None):
+
+    if _client is None:
+        raise HTTPException(
+            status_code=500,
+            detail="TMDB client not initialized"
+        )
+
+    params = {
+        "api_key": TMDB_KEY,
+        "language":"en-US"
+    }
+
     if extra_params:
         params.update(extra_params)
-    r = await _client.get(f"{TMDB_BASE}{path}", params=params)
-    if r.status_code == 404:
-        raise HTTPException(status_code=404, detail="Resource not found on TMDB")
-    if r.status_code != 200:
-        raise HTTPException(status_code=502, detail="TMDB API error")
-    return r.json()
 
+    url = f"{TMDB_BASE}{path}"
+
+    retries = 3
+
+    for attempt in range(retries):
+        try:
+            r = await _client.get(
+                url,
+                params=params,
+            )
+            r.raise_for_status()
+
+            return r.json()
+
+        except (
+            httpx.ConnectError,
+            httpx.ReadTimeout,
+            httpx.RemoteProtocolError,
+        ) as e:
+
+            if attempt == retries - 1:
+                raise HTTPException(
+                    status_code=503,
+                    detail=f"TMDB unavailable: {type(e).__name__}"
+                )
+
+            await asyncio.sleep(1)
+
+        except httpx.HTTPStatusError as e:
+
+            raise HTTPException(
+                status_code=e.response.status_code,
+                detail=e.response.text
+            )
 
 def format_movie(m: dict) -> dict:
     return {

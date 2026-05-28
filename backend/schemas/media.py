@@ -47,14 +47,19 @@ class MediaListResponse(BaseModel):
     total_pages: int
     page: int
 
+# stream servers
+class StreamServer(BaseModel):
+    key:str
+    name:str
+    url:str
 
 # stream response
 class StreamResponse(BaseModel):
     embed_url: str
     tmdbId: int
+    servers: list[StreamServer] = []
     season: Optional[int] = None
     episode: Optional[int] = None
-
 
 # season response
 class SeasonResponse(BaseModel):

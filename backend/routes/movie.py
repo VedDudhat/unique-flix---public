@@ -2,7 +2,7 @@ from fastapi import APIRouter, Query, Depends
 from backend.schemas.media import MediaListResponse, StreamResponse
 from backend.auth import get_current_user
 from backend.models.user import User
-from backend.utils.tmdb import VIDLINK_MOVIE
+from backend.utils.tmdb import build_movie_servers
 
 router = APIRouter(prefix="/api/movies", tags=["Movies"])
 
@@ -80,16 +80,22 @@ async def search_movies(
     }
 
 
-# stream movie using vidsrc
+# stream movie using multiple streaming servers
 @router.get("/{movie_id}/stream", response_model=StreamResponse, summary="Get VidSrc embed URL for a movie",
             )
 async def movie_stream(
         movie_id: int,
         _: User = Depends(get_current_user),
 ):
-    """Returns the VidSrc iframe embed URL — no extra API key needed."""
+    """Returns the Streaming pltforms iframe embed URL — no extra API key needed."""
 
-    return {"embed_url": VIDLINK_MOVIE.format(tmdbId=movie_id), "tmdbId": movie_id}
+    servers = build_movie_servers(movie_id)
+
+    return {
+        "embed_url": servers[0]["url"],
+        "servers": servers,
+        "tmdbId": movie_id
+    }
 
 @router.get("/genre", summary=f"Movies by genre")
 

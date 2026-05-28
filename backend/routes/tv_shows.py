@@ -2,7 +2,7 @@ from fastapi import APIRouter, Query, Depends
 from backend.schemas.media import MediaListResponse, StreamResponse, SeasonResponse
 from backend.auth import get_current_user
 from backend.models.user import User
-from backend.utils.tmdb import tmdb_get, format_tv, TMDB_IMG, VIDLINK_TV
+from backend.utils.tmdb import tmdb_get, format_tv, TMDB_IMG, build_tv_servers
 
 router = APIRouter(prefix="/api/tv-shows", tags=["TV-SHOWS"])
 
@@ -92,9 +92,21 @@ async def tv_stream(
         episode: int = Query(1, ge=1),
         _: User = Depends(get_current_user),
 ):
-    """Returns the VidSrc iframe embed URL for a specific season + episode."""
-    url = VIDLINK_TV.format(tmdbId=tv_id, season=season, episode=episode)
-    return {"embed_url": url, "tmdbId": tv_id, "season": season, "episode": episode}
+    """Returns the streaming platform embed URL for a specific season + episode."""
+
+    servers = build_tv_servers(
+        tv_id,
+        season,
+        episode
+    )
+
+    return {
+        "embed_url": servers[0]["url"],
+        "servers": servers,
+        "tmdbId": tv_id,
+        "season": season,
+        "episode": episode
+    }
 
 @router.get("/genre", summary=f"Movies by genre")
 

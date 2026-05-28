@@ -6,14 +6,101 @@ import httpx
 from dotenv import load_dotenv
 load_dotenv()
 
-TMDB_BASE = "https://api.themoviedb.org/3"
+TMDB_BASE = os.getenv("TMDB_BASE","https://api.themoviedb.org/3")
 TMDB_KEY = os.getenv("TMDB_API_KEY", "dd41c27d8ac583024d56ca6c34d506f6")
-TMDB_IMG = "https://image.tmdb.org/t/p/w780"
-TMDB_IMG_ORIGINAL = "https://image.tmdb.org/t/p/original"
+TMDB_IMG = os.getenv("TMDB_IMG","https://image.tmdb.org/t/p/w780")
+TMDB_IMG_ORIGINAL = os.getenv("TMDB_IMG_ORIGINAL","https://image.tmdb.org/t/p/original")
 
-VIDLINK_MOVIE = "https://vidlink.pro/movie/{tmdbId}"
-VIDLINK_TV = "https://vidlink.pro/tv/{tmdbId}/{season}/{episode}"
-VIDLINK_ANIME = "https://vidlink.pro/anime/{MALid}/{number}/{subOrDub}"
+
+STREAM_MOVIE_PROVIDERS = [
+    {
+        "key": "vidlink",
+        "name": "Vidlink",
+        "url": os.getenv("VIDLINK_MOVIE","https://vidlink.pro/movie/{tmdbId}"
+        )
+    },
+    {
+        "key": "vidsrc",
+        "name": "VidSrc",
+        "url": os.getenv("VIDSRC_MOVIE","https://vidsrc.to/embed/movie/{tmdbId}"
+        )
+    },
+    {
+        "key": "vidrock",
+        "name": "VidRock",
+        "url": os.getenv("VIDROCK_MOVIE","https://vidrock.ru/movie/{tmdbId}"
+        )
+    },
+    {
+        "key": "2embed",
+        "name": "2Embed",
+        "url": os.getenv("EMBED_MOVIE","https://www.2embed.cc/embed/{tmdbId}"
+        )
+    },
+    {
+        "key": "vidnest",
+        "name": "VidNest",
+        "url": os.getenv("VIDNEST_MOVIE","https://vidnest.fun/movie/[tmdbId]"
+        )
+    },
+    {
+        "key": "anyembed",
+        "name": "AnyEmbed",
+        "url": os.getenv("ANYEMBED_MOVIE","https://anyembed.com/embed/tmdb-movie-{id}"
+        )
+    },
+    {
+        "key": "vidfast",
+        "name": "VidFast",
+        "url": os.getenv("VIDFAST_MOVIE","https://vidfast.pro/movie/{id}?autoPlay=true"
+        )
+    }
+]
+
+STREAM_TV_PROVIDERS = [
+    {
+        "key": "vidlink",
+        "name": "Vidlink",
+        "url": os.getenv("VIDLINK_TV", "https://vidlink.pro/tv/{tmdbId}/{season}/{episode}"
+                         )
+    },
+    {
+        "key": "vidsrc",
+        "name": "VidSrc",
+        "url": os.getenv("VIDSRC_TV", "https://vidsrc.to/embed/tv/{tmdbId}/{season}/{episode}"
+                         )
+    },
+    {
+        "key": "vidrock",
+        "name": "VidRock",
+        "url": os.getenv("VIDROCK_TV", "https://vidrock.ru/tv/{tmdbId}/{season_number}/{episode_number}"
+                         )
+    },
+    {
+        "key": "2embed",
+        "name": "2Embed",
+        "url": os.getenv("EMBED_TV", "https://www.2embed.cc/embedtv/{tmdbId}&s={season}&e={episode}"
+                         )
+    },
+    {
+        "key": "vidnest",
+        "name": "VidNest",
+        "url": os.getenv("VIDNEST_TV", "https://vidnest.fun/tv/[tmdbId]/[SEASON]/[EPISODE]"
+                         )
+    },
+    {
+        "key": "anyembed",
+        "name": "AnyEmbed",
+        "url": os.getenv("ANYEMBED_TV", "https://anyembed.com/embed/tmdb-tv-{id}-{season}-{episode}"
+                         )
+    },
+    {
+        "key": "vidfast",
+        "name": "VidFast",
+        "url": os.getenv("VIDFAST_TV", "https://vidfast.pro/tv/{id}/{season}/{episode}?autoPlay=true"
+                         )
+    }
+]
 
 # The shared client is injected at startup by app.py
 _client: httpx.AsyncClient = None
@@ -107,3 +194,32 @@ def format_tv(t: dict) -> dict:
         "genre_ids": t.get("genre_ids", []),
         "media_type": "tv",
     }
+
+
+def build_movie_servers(movie_id: int):
+    return [
+        {
+            "key": s["key"],
+            "name": s["name"],
+            "url": s["url"].format(
+                tmdbId=movie_id,
+                id=movie_id
+            )
+        }
+        for s in STREAM_MOVIE_PROVIDERS
+    ]
+
+
+def build_tv_servers(tv_id: int,season: int,episode: int):
+    return [
+        {
+            "key": s["key"],
+            "name": s["name"],
+            "url": s["url"].format(
+                tmdbId=tv_id,
+                season=season,
+                episode=episode
+            )
+        }
+        for s in STREAM_TV_PROVIDERS
+    ]

@@ -3,21 +3,6 @@ import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiAlertTriangle, FiRefreshCw } from "react-icons/fi";
 import {getMovieDetail, getTVDetail, getMovieStream, getTVStream, getTVSeason,} from "../utils/api";
 
-const buildMirrors = (mediaType, id, season, episode) => {
-  if (mediaType === "movie") {
-    return [
-      { key: "vidsrc",   name: "VidSrc",    url: `https://vidsrc.to/embed/movie/${id}` },
-      { key: "vidsrc2",  name: "VidSrc 2",  url: `https://vidsrc.me/embed/movie?tmdb=${id}` },
-      { key: "superembed", name: "SuperEmbed", url: `https://multiembed.mov/?video_id=${id}&tmdb=1` },
-    ];
-  }
-  return [
-    { key: "vidsrc",   name: "VidSrc",    url: `https://vidsrc.to/embed/tv/${id}/${season}/${episode}` },
-    { key: "vidsrc2",  name: "VidSrc 2",  url: `https://vidsrc.me/embed/tv?tmdb=${id}&season=${season}&episode=${episode}` },
-    { key: "superembed", name: "SuperEmbed", url: `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${season}&e=${episode}` },
-  ];
-};
-
 export default function Player({ mediaType }) {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
@@ -69,27 +54,30 @@ export default function Player({ mediaType }) {
         ? await getMovieStream(id)
         : await getTVStream(id, activeSeason, activeEpisode);
 
-      const mirrors = buildMirrors(mediaType, id, activeSeason, activeEpisode);
-
-      if (data?.embed_url) {
-        mirrors[0].url = data.embed_url;
-      }
+      const mirrors = data.servers || [];
 
       setServers(mirrors);
-      setActiveServer(mirrors[0].key);
-      setEmbedUrl(mirrors[0].url);
+      if (mirrors.length) {
+
+        setActiveServer(
+          mirrors[0].key
+        );
+
+        setEmbedUrl(
+        mirrors[0].url
+        );
+      }
     }
     catch
     {
-      // Backend failed — still show client-side mirrors
-      const mirrors = buildMirrors(mediaType, id, activeSeason, activeEpisode);
-      setServers(mirrors);
-      setActiveServer(mirrors[0].key);
-      setEmbedUrl(mirrors[0].url);
+      setServers([]);
+      setEmbedUrl("");
+
     } finally {
       setLoading(false);
     }
   }, [id, mediaType, activeSeason, activeEpisode]);
+
 
   useEffect(() => { loadStream(); }, [loadStream]);
 

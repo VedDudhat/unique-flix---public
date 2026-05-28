@@ -3,7 +3,7 @@
 A full-stack movie & TV show streaming web application converted from an Android app.  
 Built with **Python (Flask)** backend + **React** frontend, deployed on **Vercel**.
 
-> demo link: https://uniqueflix.vercel.app/
+> demo link: (https://uniqflix.vercel.app/)
 
 > **Streaming engine:** [cinezo.live](https://cinezo.live/) — free, no API key required.  
 > **Metadata:** [TMDB (The Movie Database)](https://www.themoviedb.org/) — free API key required.
